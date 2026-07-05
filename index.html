@@ -577,7 +577,7 @@
       <section class="hero" id="overview">
         <div>
           <h1>LeadHunter Digital Dashboard</h1>
-          <p>Run-level intelligence for Meta Ads and Roofing batches, with base operating cost, AI billing model cost, editable heat-score pricing, evidence previews, and investor-facing completion status.</p>
+          <p>Run-level intelligence for Meta Ads and Roofing batches, with AI billing model cost, editable heat-score pricing, evidence previews, and investor-facing completion status.</p>
         </div>
         <div class="hero-actions">
           <div class="switch" aria-label="Cost model">
@@ -600,14 +600,14 @@
           <p class="small">64 strict leads from 70 requested across both runs.</p>
         </article>
         <article class="card">
-          <span class="eyebrow" id="selectedCplLabel">Subscription total CPL</span>
-          <strong class="value" id="selectedCplKpi">$1.52</strong>
-          <p class="small" id="selectedCplFoot">Total selected-model cost divided by strict leads.</p>
+          <span class="eyebrow" id="selectedCplLabel">Subscription AI CPL</span>
+          <strong class="value" id="selectedCplKpi">$0.03</strong>
+          <p class="small" id="selectedCplFoot">Selected AI billing cost divided by strict leads.</p>
         </article>
         <article class="card">
-          <span class="eyebrow" id="modelLabel">Subscription total cost</span>
-          <strong class="value" id="modelCostKpi">$97.37</strong>
-          <p class="small" id="modelFoot">Base operating cost plus subscription allocation.</p>
+          <span class="eyebrow" id="modelLabel">Subscription AI cost</span>
+          <strong class="value" id="modelCostKpi">$2</strong>
+          <p class="small" id="modelFoot">Subscription allocation only.</p>
         </article>
       </section>
 
@@ -643,11 +643,10 @@
             <thead>
               <tr>
                 <th>Run</th>
-                <th class="num">Base Operating</th>
                 <th class="num">Subscription AI</th>
-                <th class="num">Subscription Total</th>
+                <th class="num">Subscription AI CPL</th>
                 <th class="num">OpenRouter AI</th>
-                <th class="num">OpenRouter Total</th>
+                <th class="num">OpenRouter AI CPL</th>
               </tr>
             </thead>
             <tbody id="costRows"></tbody>
@@ -659,9 +658,9 @@
             <h2>Cost Explanation</h2>
           </div>
           <div class="note-list">
-            <div class="note">Base operating cost is the measured time/operator run cost. It does not change when you toggle Subscription or OpenRouter.</div>
             <div class="note">Subscription AI cost is a fixed allocation. In the current model, each run receives $1.00 from a $100/month subscription spread across 100 expected LeadHunter runs.</div>
             <div class="note orange">OpenRouter AI cost is usage-based. Meta Ads is $14.46 total and Roofing is $4.12 total using the current GPT-5.5 assumption of $5/M input tokens and $30/M output tokens.</div>
+            <div class="note">Human-time cost has been removed from this dashboard. Elapsed time is shown only as a speed/efficiency signal, not as a dollar cost.</div>
           </div>
         </article>
       </section>
@@ -732,7 +731,7 @@
           <div class="note-list">
             <div class="note">Meta Ads Batch 50 is complete and can be shown as an investor-ready run.</div>
             <div class="note orange">Roofing Batch 20 is commercially useful but still partial at 14/20. Do not label it complete until the loop finds the missing 6 strict leads.</div>
-            <div class="note">Cost views must stay separated between base operating cost, subscription allocation, OpenRouter usage-based token estimates, and total cost including AI billing.</div>
+            <div class="note">Cost views stay separated between subscription allocation and OpenRouter usage-based token estimates.</div>
           </div>
         </article>
         <article class="card">
@@ -760,7 +759,6 @@
         leads: 50,
         elapsedHours: 1.51,
         avgMin: 1.81,
-        operatingCost: 52.74,
         tokenCost: 14.46,
         tokenCpl: 0.29,
         subscriptionCost: 1,
@@ -782,7 +780,6 @@
         leads: 14,
         elapsedHours: 1.22,
         avgMin: 5.22,
-        operatingCost: 42.63,
         tokenCost: 4.12,
         tokenCpl: 0.29,
         subscriptionCost: 1,
@@ -817,18 +814,12 @@
       return allTiers.reduce((sum, tier) => sum + tierCount(tier, source) * tierPrices[tier], 0);
     }
 
-    function totalOperatingCost(source = runs) {
-      return source.reduce((sum, run) => sum + run.operatingCost, 0);
-    }
-
     function totals(source = runs) {
       const leads = source.reduce((sum, run) => sum + run.leads, 0);
       const target = source.reduce((sum, run) => sum + run.target, 0);
       const revenue = totalRevenue(source);
-      const operating = totalOperatingCost(source);
       const modelCost = source.reduce((sum, run) => sum + (activeModel === "subscription" ? run.subscriptionCost : run.tokenCost), 0);
-      const totalCost = operating + modelCost;
-      return { leads, target, revenue, operating, modelCost, totalCost, profit: revenue - totalCost };
+      return { leads, target, revenue, modelCost, totalCost: modelCost, profit: revenue - modelCost };
     }
 
     function renderKpis() {
@@ -836,14 +827,14 @@
       $("sideLeadCount").textContent = t.leads;
       $("strictLeadKpi").textContent = t.leads;
       $("completionKpi").textContent = Math.round((t.leads / t.target) * 100) + "%";
-      $("selectedCplLabel").textContent = activeModel === "subscription" ? "Subscription total CPL" : "OpenRouter total CPL";
+      $("selectedCplLabel").textContent = activeModel === "subscription" ? "Subscription AI CPL" : "OpenRouter AI CPL";
       $("selectedCplKpi").textContent = money(t.totalCost / t.leads);
-      $("selectedCplFoot").textContent = `${money(t.operating / t.leads)} base CPL + ${money(t.modelCost / t.leads)} AI billing CPL.`;
-      $("modelLabel").textContent = activeModel === "subscription" ? "Subscription total cost" : "OpenRouter total cost";
+      $("selectedCplFoot").textContent = "Selected AI billing cost divided by strict leads.";
+      $("modelLabel").textContent = activeModel === "subscription" ? "Subscription AI cost" : "OpenRouter AI cost";
       $("modelCostKpi").textContent = money(t.totalCost);
       $("modelFoot").textContent = activeModel === "subscription"
-        ? `${money(t.operating)} base operating + ${money(t.modelCost)} subscription allocation.`
-        : `${money(t.operating)} base operating + ${money(t.modelCost)} estimated token spend.`;
+        ? "Subscription allocation only."
+        : "Estimated token spend only.";
     }
 
     function renderRunCards() {
@@ -852,8 +843,7 @@
         const partial = run.status !== "Complete";
         const modelCost = activeModel === "subscription" ? run.subscriptionCost : run.tokenCost;
         const modelCpl = activeModel === "subscription" ? run.subscriptionCpl : run.tokenCpl;
-        const totalCost = run.operatingCost + modelCost;
-        const totalCpl = totalCost / run.leads;
+        const runRevenue = allTiers.reduce((sum, tier) => sum + (run.tiers[tier] || 0) * tierPrices[tier], 0);
         return `
           <article class="run-card ${partial ? "partial" : ""}">
             <div class="run-top">
@@ -868,11 +858,11 @@
               <p class="small">${run.leads}/${run.target} strict leads, ${pct}% complete</p>
             </div>
             <div class="mini-grid">
-              <div class="mini"><span class="eyebrow">Base cost</span><strong>${money(run.operatingCost)}</strong></div>
               <div class="mini"><span class="eyebrow">AI cost</span><strong>${money(modelCost)}</strong></div>
-              <div class="mini"><span class="eyebrow">Total CPL</span><strong>${money(totalCpl)}</strong></div>
+              <div class="mini"><span class="eyebrow">AI CPL</span><strong>${money(modelCpl)}</strong></div>
+              <div class="mini"><span class="eyebrow">Revenue</span><strong>${money(runRevenue)}</strong></div>
             </div>
-            <p class="small">${run.elapsedHours}h elapsed, ${run.avgMin} min average per strict lead. Total selected-model run cost: ${money(totalCost)}. AI-only CPL: ${money(modelCpl)}.</p>
+            <p class="small">${run.elapsedHours}h elapsed, ${run.avgMin} min average per strict lead. Selected AI billing cost: ${money(modelCost)}.</p>
           </article>
         `;
       }).join("");
@@ -896,11 +886,10 @@
       $("costRows").innerHTML = runs.map(run => `
         <tr>
           <td><strong>${run.name}</strong><br><span class="${run.status === "Complete" ? "status-complete" : "status-partial"}">${run.status}</span></td>
-          <td class="num">${money(run.operatingCost)}</td>
           <td class="num">${money(run.subscriptionCost)}</td>
-          <td class="num">${money(run.operatingCost + run.subscriptionCost)}<br><span class="pill">${money((run.operatingCost + run.subscriptionCost) / run.leads)} CPL</span></td>
+          <td class="num">${money(run.subscriptionCost / run.leads)}</td>
           <td class="num">${money(run.tokenCost)}</td>
-          <td class="num">${money(run.operatingCost + run.tokenCost)}<br><span class="pill">${money((run.operatingCost + run.tokenCost) / run.leads)} CPL</span></td>
+          <td class="num">${money(run.tokenCost / run.leads)}</td>
         </tr>
       `).join("");
     }
@@ -964,8 +953,8 @@
         "LeadHunter Dashboard Summary",
         `Strict leads: ${t.leads}/${t.target}`,
         `Potential revenue: ${money(t.revenue)}`,
-        `Selected-model total cost: ${money(t.totalCost)}`,
-        `Gross profit after selected model cost: ${money(t.profit)}`,
+        `Selected AI billing cost: ${money(t.totalCost)}`,
+        `Gross profit after selected AI billing: ${money(t.profit)}`,
         `Active cost model: ${activeModel === "subscription" ? "Subscription allocation" : "OpenRouter token estimate"}`,
         "Meta Ads Batch 50: Complete",
         "Roofing Batch 20: Partial, 14/20 strict leads"
