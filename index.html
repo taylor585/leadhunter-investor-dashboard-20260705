@@ -1,0 +1,1014 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LeadHunter Digital Dashboard</title>
+  <style>
+    :root {
+      --bg: #eef2f6;
+      --paper: #ffffff;
+      --ink: #0c1322;
+      --muted: #667085;
+      --line: #d7deea;
+      --soft: #f7f9fc;
+      --nav: #07111f;
+      --orange: #f26f21;
+      --teal: #0d7588;
+      --green: #16825d;
+      --blue: #2457d6;
+      --amber: #b97909;
+      --red: #bd2d34;
+      --shadow: 0 18px 48px rgba(15, 23, 42, .08);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input, select {
+      font: inherit;
+    }
+
+    button {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 252px 1fr;
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      height: 100vh;
+      padding: 24px 18px;
+      background: var(--nav);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .brand {
+      display: grid;
+      gap: 8px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, .16);
+    }
+
+    .brand strong {
+      font-size: 23px;
+      letter-spacing: 0;
+    }
+
+    .brand span {
+      color: #afbed3;
+      line-height: 1.35;
+      font-size: 13px;
+    }
+
+    nav {
+      display: grid;
+      gap: 8px;
+    }
+
+    nav a {
+      color: #d8e2f0;
+      text-decoration: none;
+      padding: 11px 12px;
+      border: 1px solid transparent;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 750;
+    }
+
+    nav a:hover {
+      background: rgba(255, 255, 255, .08);
+      border-color: rgba(255, 255, 255, .14);
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      background: var(--orange);
+      border-radius: 99px;
+      display: inline-block;
+      flex: 0 0 auto;
+    }
+
+    .side-stat {
+      margin-top: auto;
+      padding: 14px;
+      border: 1px solid rgba(255, 255, 255, .16);
+      background: rgba(255, 255, 255, .06);
+    }
+
+    .side-stat span {
+      color: #afbed3;
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: 850;
+    }
+
+    .side-stat strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 28px;
+      color: white;
+    }
+
+    main {
+      min-width: 0;
+      padding: 24px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: 20px;
+      background: linear-gradient(135deg, #0b1220 0%, #13243b 58%, #0c4a5c 100%);
+      color: white;
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      max-width: 760px;
+      font-size: clamp(34px, 5vw, 62px);
+      line-height: .98;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 780px;
+      color: #c6d3e4;
+      margin-top: 12px;
+      font-size: 17px;
+      line-height: 1.45;
+    }
+
+    .hero-actions {
+      display: grid;
+      gap: 10px;
+      justify-items: end;
+    }
+
+    .switch {
+      display: inline-flex;
+      padding: 4px;
+      background: rgba(255, 255, 255, .1);
+      border: 1px solid rgba(255, 255, 255, .2);
+      gap: 4px;
+    }
+
+    .switch button {
+      color: white;
+      background: transparent;
+      border-color: transparent;
+      padding: 0 14px;
+    }
+
+    .switch button.active {
+      background: white;
+      color: var(--ink);
+      border-color: white;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .kpis {
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+    }
+
+    .two {
+      grid-template-columns: minmax(0, 1.1fr) minmax(360px, .9fr);
+    }
+
+    .three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      border-radius: 8px;
+      min-width: 0;
+    }
+
+    .card.flat {
+      box-shadow: none;
+    }
+
+    .eyebrow {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .value {
+      display: block;
+      margin-top: 9px;
+      font-size: clamp(30px, 4vw, 46px);
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .small {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .section-head {
+      display: flex;
+      gap: 16px;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .section-head h2 {
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+
+    .run-board {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .run-card {
+      border: 1px solid var(--line);
+      background: var(--soft);
+      padding: 16px;
+      border-radius: 8px;
+      display: grid;
+      gap: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .run-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 5px;
+      height: 100%;
+      background: var(--teal);
+    }
+
+    .run-card.partial::before {
+      background: var(--orange);
+    }
+
+    .run-top {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .run-top h3 {
+      font-size: 20px;
+    }
+
+    .badge {
+      border: 1px solid var(--line);
+      background: white;
+      padding: 5px 8px;
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--green);
+    }
+
+    .badge.partial {
+      color: var(--orange);
+    }
+
+    .progress-line {
+      display: grid;
+      gap: 8px;
+    }
+
+    .track {
+      height: 13px;
+      background: #e6ebf2;
+      border: 1px solid var(--line);
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      background: var(--teal);
+    }
+
+    .fill.partial {
+      background: var(--orange);
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .mini {
+      background: white;
+      border: 1px solid var(--line);
+      padding: 10px;
+    }
+
+    .mini strong {
+      display: block;
+      font-size: 20px;
+      margin-top: 5px;
+    }
+
+    .canvas {
+      min-height: 320px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .chart-row {
+      display: grid;
+      grid-template-columns: 110px 1fr 70px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .chart-row strong {
+      font-size: 14px;
+    }
+
+    .bar-track {
+      height: 22px;
+      background: #edf1f6;
+      border: 1px solid var(--line);
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--teal);
+    }
+
+    .bar-fill.orange { background: var(--orange); }
+    .bar-fill.green { background: var(--green); }
+    .bar-fill.blue { background: var(--blue); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 12px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    td.num, th.num {
+      text-align: right;
+    }
+
+    .status-complete { color: var(--green); font-weight: 900; }
+    .status-partial { color: var(--orange); font-weight: 900; }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .toolbar select, .toolbar input {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      background: white;
+      padding: 0 10px;
+      color: var(--ink);
+      min-width: 160px;
+    }
+
+    .tier-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 12px;
+    }
+
+    .forecast-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .forecast-grid .value {
+      font-size: 30px;
+    }
+
+    .tier {
+      border: 1px solid var(--line);
+      background: var(--soft);
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .tier input {
+      width: 100%;
+      margin-top: 9px;
+      min-height: 38px;
+      border: 1px solid var(--line);
+      padding: 0 10px;
+      font-weight: 900;
+    }
+
+    .evidence-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .evidence-wrap table {
+      min-width: 920px;
+    }
+
+    .lead-id {
+      font-weight: 900;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 8px;
+      background: #f2f5fa;
+      border: 1px solid var(--line);
+      font-size: 12px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .note-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .note {
+      border-left: 4px solid var(--teal);
+      padding: 10px 12px;
+      background: var(--soft);
+      color: #26374d;
+      line-height: 1.45;
+    }
+
+    .note.orange {
+      border-left-color: var(--orange);
+    }
+
+    .copy-btn {
+      background: var(--nav);
+      color: white;
+      border-color: var(--nav);
+      padding: 0 14px;
+    }
+
+    @media (max-width: 1120px) {
+      .shell { grid-template-columns: 1fr; }
+      aside {
+        position: static;
+        height: auto;
+      }
+      nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .side-stat {
+        margin-top: 0;
+      }
+      .hero, .two {
+        grid-template-columns: 1fr;
+      }
+      .hero-actions {
+        justify-items: start;
+      }
+      .kpis, .run-board, .three, .tier-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 680px) {
+      main {
+        padding: 14px;
+      }
+      aside {
+        padding: 18px 14px;
+      }
+      nav, .kpis, .run-board, .three, .tier-grid, .mini-grid, .forecast-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero {
+        padding: 20px;
+      }
+      .chart-row {
+        grid-template-columns: 82px 1fr 44px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside>
+      <div class="brand">
+        <strong>LeadHunter HUB</strong>
+        <span>Digital operating dashboard for batch runs, costs, pricing, and lead quality.</span>
+      </div>
+      <nav aria-label="Dashboard sections">
+        <a href="#overview"><span class="dot"></span> Overview</a>
+        <a href="#runs"><span class="dot"></span> Runs</a>
+        <a href="#costs"><span class="dot"></span> Costs</a>
+        <a href="#pricing"><span class="dot"></span> Pricing</a>
+        <a href="#evidence"><span class="dot"></span> Evidence</a>
+        <a href="#notes"><span class="dot"></span> Notes</a>
+      </nav>
+      <div class="side-stat">
+        <span>Strict leads</span>
+        <strong id="sideLeadCount">64</strong>
+      </div>
+    </aside>
+
+    <main>
+      <section class="hero" id="overview">
+        <div>
+          <h1>LeadHunter Digital Dashboard</h1>
+          <p>Run-level intelligence for Meta Ads and Roofing batches, with base operating cost, AI billing model cost, editable heat-score pricing, evidence previews, and investor-facing completion status.</p>
+        </div>
+        <div class="hero-actions">
+          <div class="switch" aria-label="Cost model">
+            <button id="modelSub" class="active" type="button">Subscription</button>
+            <button id="modelOpen" type="button">OpenRouter</button>
+          </div>
+          <button class="copy-btn" id="copySummary" type="button">Copy Summary</button>
+        </div>
+      </section>
+
+      <section class="grid kpis" aria-label="Top metrics">
+        <article class="card">
+          <span class="eyebrow">Strict leads</span>
+          <strong class="value" id="strictLeadKpi">64</strong>
+          <p class="small">50 completed Meta Ads leads plus 14 Roofing leads.</p>
+        </article>
+        <article class="card">
+          <span class="eyebrow">Completion</span>
+          <strong class="value" id="completionKpi">91%</strong>
+          <p class="small">64 strict leads from 70 requested across both runs.</p>
+        </article>
+        <article class="card">
+          <span class="eyebrow" id="selectedCplLabel">Subscription total CPL</span>
+          <strong class="value" id="selectedCplKpi">$1.52</strong>
+          <p class="small" id="selectedCplFoot">Total selected-model cost divided by strict leads.</p>
+        </article>
+        <article class="card">
+          <span class="eyebrow" id="modelLabel">Subscription total cost</span>
+          <strong class="value" id="modelCostKpi">$97.37</strong>
+          <p class="small" id="modelFoot">Base operating cost plus subscription allocation.</p>
+        </article>
+      </section>
+
+      <section class="grid two" id="runs">
+        <article class="card">
+          <div class="section-head">
+            <h2>Run Board</h2>
+            <div class="toolbar">
+              <select id="runFocus" aria-label="Focus run">
+                <option value="all">All runs</option>
+                <option value="meta">Meta Ads Batch 50</option>
+                <option value="roofing">Roofing Batch 20</option>
+              </select>
+            </div>
+          </div>
+          <div class="run-board" id="runCards"></div>
+        </article>
+
+        <article class="card">
+          <div class="section-head">
+            <h2>Completion Scale</h2>
+          </div>
+          <div class="canvas" id="completionChart"></div>
+        </article>
+      </section>
+
+      <section class="grid two" id="costs">
+        <article class="card">
+          <div class="section-head">
+            <h2>Cost Model Split</h2>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Run</th>
+                <th class="num">Base Operating</th>
+                <th class="num">Subscription AI</th>
+                <th class="num">Subscription Total</th>
+                <th class="num">OpenRouter AI</th>
+                <th class="num">OpenRouter Total</th>
+              </tr>
+            </thead>
+            <tbody id="costRows"></tbody>
+          </table>
+        </article>
+
+        <article class="card">
+          <div class="section-head">
+            <h2>Cost Explanation</h2>
+          </div>
+          <div class="note-list">
+            <div class="note">Base operating cost is the measured time/operator run cost. It does not change when you toggle Subscription or OpenRouter.</div>
+            <div class="note">Subscription AI cost is a fixed allocation. In the current model, each run receives $1.00 from a $100/month subscription spread across 100 expected LeadHunter runs.</div>
+            <div class="note orange">OpenRouter AI cost is usage-based. Meta Ads is $14.46 total and Roofing is $4.12 total using the current GPT-5.5 assumption of $5/M input tokens and $30/M output tokens.</div>
+          </div>
+        </article>
+      </section>
+
+      <section class="grid two" id="pricing">
+        <article class="card">
+          <div class="section-head">
+            <h2>Heat-Score Pricing</h2>
+          </div>
+          <div class="tier-grid" id="tierInputs"></div>
+        </article>
+
+        <article class="card">
+          <div class="section-head">
+            <h2>Revenue Forecast</h2>
+          </div>
+          <div class="forecast-grid">
+            <div class="card flat">
+              <span class="eyebrow">Potential revenue</span>
+              <strong class="value" id="revenueKpi">$3,375</strong>
+            </div>
+            <div class="card flat">
+              <span class="eyebrow">Gross profit</span>
+              <strong class="value" id="profitKpi">$3,277.63</strong>
+            </div>
+            <div class="card flat">
+              <span class="eyebrow">Avg charge</span>
+              <strong class="value" id="avgChargeKpi">$52.73</strong>
+            </div>
+          </div>
+          <div class="canvas" id="tierChart" style="margin-top:16px"></div>
+        </article>
+      </section>
+
+      <section class="card" id="evidence">
+        <div class="section-head">
+          <h2>Lead Evidence Preview</h2>
+          <div class="toolbar">
+            <select id="evidenceRun" aria-label="Evidence run filter">
+              <option value="all">All runs</option>
+              <option value="meta">Meta Ads</option>
+              <option value="roofing">Roofing</option>
+            </select>
+            <input id="evidenceSearch" type="search" placeholder="Search lead text" />
+          </div>
+        </div>
+        <div class="evidence-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Lead</th>
+                <th>Run</th>
+                <th>Need</th>
+                <th class="num">Score</th>
+                <th>Tier</th>
+              </tr>
+            </thead>
+            <tbody id="evidenceRows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="grid two" id="notes">
+        <article class="card">
+          <div class="section-head">
+            <h2>Investor Readiness</h2>
+          </div>
+          <div class="note-list">
+            <div class="note">Meta Ads Batch 50 is complete and can be shown as an investor-ready run.</div>
+            <div class="note orange">Roofing Batch 20 is commercially useful but still partial at 14/20. Do not label it complete until the loop finds the missing 6 strict leads.</div>
+            <div class="note">Cost views must stay separated between base operating cost, subscription allocation, OpenRouter usage-based token estimates, and total cost including AI billing.</div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="section-head">
+            <h2>Next Actions</h2>
+          </div>
+          <div class="note-list">
+            <div class="note orange">Finish the Roofing loop to 20 strict leads, then refresh pricing and revenue projections.</div>
+            <div class="note">Export actual OpenRouter logs on future runs so token cost stops being an estimate.</div>
+            <div class="note">Keep adding only useful self-improving notes back into the LeadHunter skill and HUB.</div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const runs = [
+      {
+        id: "meta",
+        name: "Meta Ads Batch 50",
+        industry: "Meta ads experts",
+        status: "Complete",
+        target: 50,
+        leads: 50,
+        elapsedHours: 1.51,
+        avgMin: 1.81,
+        operatingCost: 52.74,
+        tokenCost: 14.46,
+        tokenCpl: 0.29,
+        subscriptionCost: 1,
+        subscriptionCpl: 0.02,
+        tiers: { "85-90": 5, "90-95": 33, "95-100": 12 },
+        evidence: [
+          ["META-020", "Nonprofit consulting firm scaling paid ads; needs Meta, Google, LinkedIn and GHL integration.", 98, "95-100"],
+          ["META-029", "Needs Facebook Lead Form to GoHighLevel pipeline conversion tracking via Meta CAPI.", 97, "95-100"],
+          ["META-050", "Looking for someone to run Meta ads for Facebook and Instagram at a fair price.", 90, "90-95"],
+          ["META-030", "Looking for a freelancer to run FB ads and report on performance.", 85, "85-90"]
+        ]
+      },
+      {
+        id: "roofing",
+        name: "Roofing Batch 20",
+        industry: "Roofing",
+        status: "Partial",
+        target: 20,
+        leads: 14,
+        elapsedHours: 1.22,
+        avgMin: 5.22,
+        operatingCost: 42.63,
+        tokenCost: 4.12,
+        tokenCpl: 0.29,
+        subscriptionCost: 1,
+        subscriptionCpl: 0.07,
+        tiers: { "80-85": 1, "85-90": 5, "90-95": 6, "95-100": 2 },
+        evidence: [
+          ["ROOF-011", "Needs a licensed and insured roofer for a 40sq standing seam roof replacement ASAP.", 96, "95-100"],
+          ["ROOF-005", "Paying out of pocket and looking for a roofing contractor to replace a home roof.", 95, "95-100"],
+          ["ROOF-012", "Selling house and needs licensed roofer to inspect and replace roof flashing ASAP.", 94, "90-95"],
+          ["ROOF-009", "Roof leak and needs a reliable roofing company for an estimate.", 93, "90-95"]
+        ]
+      }
+    ];
+
+    const tierPrices = { "80-85": 25, "85-90": 35, "90-95": 50, "95-100": 75 };
+    let activeModel = "subscription";
+    let runFocus = "all";
+
+    const $ = (id) => document.getElementById(id);
+    const money = (n) => "$" + Number(n).toLocaleString("en-US", { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
+    const allTiers = ["80-85", "85-90", "90-95", "95-100"];
+
+    function filteredRuns() {
+      return runFocus === "all" ? runs : runs.filter(run => run.id === runFocus);
+    }
+
+    function tierCount(tier, source = runs) {
+      return source.reduce((sum, run) => sum + (run.tiers[tier] || 0), 0);
+    }
+
+    function totalRevenue(source = runs) {
+      return allTiers.reduce((sum, tier) => sum + tierCount(tier, source) * tierPrices[tier], 0);
+    }
+
+    function totalOperatingCost(source = runs) {
+      return source.reduce((sum, run) => sum + run.operatingCost, 0);
+    }
+
+    function totals(source = runs) {
+      const leads = source.reduce((sum, run) => sum + run.leads, 0);
+      const target = source.reduce((sum, run) => sum + run.target, 0);
+      const revenue = totalRevenue(source);
+      const operating = totalOperatingCost(source);
+      const modelCost = source.reduce((sum, run) => sum + (activeModel === "subscription" ? run.subscriptionCost : run.tokenCost), 0);
+      const totalCost = operating + modelCost;
+      return { leads, target, revenue, operating, modelCost, totalCost, profit: revenue - totalCost };
+    }
+
+    function renderKpis() {
+      const t = totals();
+      $("sideLeadCount").textContent = t.leads;
+      $("strictLeadKpi").textContent = t.leads;
+      $("completionKpi").textContent = Math.round((t.leads / t.target) * 100) + "%";
+      $("selectedCplLabel").textContent = activeModel === "subscription" ? "Subscription total CPL" : "OpenRouter total CPL";
+      $("selectedCplKpi").textContent = money(t.totalCost / t.leads);
+      $("selectedCplFoot").textContent = `${money(t.operating / t.leads)} base CPL + ${money(t.modelCost / t.leads)} AI billing CPL.`;
+      $("modelLabel").textContent = activeModel === "subscription" ? "Subscription total cost" : "OpenRouter total cost";
+      $("modelCostKpi").textContent = money(t.totalCost);
+      $("modelFoot").textContent = activeModel === "subscription"
+        ? `${money(t.operating)} base operating + ${money(t.modelCost)} subscription allocation.`
+        : `${money(t.operating)} base operating + ${money(t.modelCost)} estimated token spend.`;
+    }
+
+    function renderRunCards() {
+      $("runCards").innerHTML = filteredRuns().map(run => {
+        const pct = Math.round((run.leads / run.target) * 100);
+        const partial = run.status !== "Complete";
+        const modelCost = activeModel === "subscription" ? run.subscriptionCost : run.tokenCost;
+        const modelCpl = activeModel === "subscription" ? run.subscriptionCpl : run.tokenCpl;
+        const totalCost = run.operatingCost + modelCost;
+        const totalCpl = totalCost / run.leads;
+        return `
+          <article class="run-card ${partial ? "partial" : ""}">
+            <div class="run-top">
+              <div>
+                <h3>${run.name}</h3>
+                <p class="small">${run.industry}</p>
+              </div>
+              <span class="badge ${partial ? "partial" : ""}">${run.status}</span>
+            </div>
+            <div class="progress-line">
+              <div class="track"><div class="fill ${partial ? "partial" : ""}" style="width:${pct}%"></div></div>
+              <p class="small">${run.leads}/${run.target} strict leads, ${pct}% complete</p>
+            </div>
+            <div class="mini-grid">
+              <div class="mini"><span class="eyebrow">Base cost</span><strong>${money(run.operatingCost)}</strong></div>
+              <div class="mini"><span class="eyebrow">AI cost</span><strong>${money(modelCost)}</strong></div>
+              <div class="mini"><span class="eyebrow">Total CPL</span><strong>${money(totalCpl)}</strong></div>
+            </div>
+            <p class="small">${run.elapsedHours}h elapsed, ${run.avgMin} min average per strict lead. Total selected-model run cost: ${money(totalCost)}. AI-only CPL: ${money(modelCpl)}.</p>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderCompletion() {
+      const max = Math.max(...runs.map(run => run.target));
+      $("completionChart").innerHTML = runs.map(run => {
+        const pct = Math.round((run.leads / run.target) * 100);
+        return `
+          <div class="chart-row">
+            <strong>${run.name}</strong>
+            <div class="bar-track"><div class="bar-fill ${run.status === "Partial" ? "orange" : "green"}" style="width:${(run.leads / max) * 100}%"></div></div>
+            <span>${pct}%</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderCosts() {
+      $("costRows").innerHTML = runs.map(run => `
+        <tr>
+          <td><strong>${run.name}</strong><br><span class="${run.status === "Complete" ? "status-complete" : "status-partial"}">${run.status}</span></td>
+          <td class="num">${money(run.operatingCost)}</td>
+          <td class="num">${money(run.subscriptionCost)}</td>
+          <td class="num">${money(run.operatingCost + run.subscriptionCost)}<br><span class="pill">${money((run.operatingCost + run.subscriptionCost) / run.leads)} CPL</span></td>
+          <td class="num">${money(run.tokenCost)}</td>
+          <td class="num">${money(run.operatingCost + run.tokenCost)}<br><span class="pill">${money((run.operatingCost + run.tokenCost) / run.leads)} CPL</span></td>
+        </tr>
+      `).join("");
+    }
+
+    function renderTierInputs() {
+      $("tierInputs").innerHTML = allTiers.map(tier => `
+        <label class="tier">
+          <span class="eyebrow">${tier}</span>
+          <strong class="value" style="font-size:28px">${tierCount(tier)}</strong>
+          <p class="small">Leads in this score band</p>
+          <input data-tier="${tier}" type="number" min="0" step="1" value="${tierPrices[tier]}" aria-label="${tier} charge per lead" />
+        </label>
+      `).join("");
+      document.querySelectorAll("[data-tier]").forEach(input => {
+        input.addEventListener("input", () => {
+          tierPrices[input.dataset.tier] = Number(input.value || 0);
+          renderRevenue();
+        });
+      });
+    }
+
+    function renderRevenue() {
+      const t = totals();
+      $("revenueKpi").textContent = money(t.revenue);
+      $("profitKpi").textContent = money(t.profit);
+      $("avgChargeKpi").textContent = money(t.revenue / t.leads);
+      const max = Math.max(...allTiers.map(tier => tierCount(tier)));
+      $("tierChart").innerHTML = allTiers.map(tier => {
+        const count = tierCount(tier);
+        const value = count * tierPrices[tier];
+        return `
+          <div class="chart-row">
+            <strong>${tier}</strong>
+            <div class="bar-track"><div class="bar-fill blue" style="width:${max ? (count / max) * 100 : 0}%"></div></div>
+            <span>${money(value)}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderEvidence() {
+      const runFilter = $("evidenceRun").value;
+      const query = $("evidenceSearch").value.trim().toLowerCase();
+      const rows = runs.flatMap(run => run.evidence.map(item => ({ run, item })))
+        .filter(({ run }) => runFilter === "all" || run.id === runFilter)
+        .filter(({ item }) => !query || item.join(" ").toLowerCase().includes(query));
+      $("evidenceRows").innerHTML = rows.map(({ run, item }) => `
+        <tr>
+          <td class="lead-id">${item[0]}</td>
+          <td><span class="pill">${run.name}</span></td>
+          <td>${item[1]}</td>
+          <td class="num"><strong>${item[2]}</strong></td>
+          <td><span class="pill">${item[3]}</span></td>
+        </tr>
+      `).join("");
+    }
+
+    function copySummary() {
+      const t = totals();
+      const summary = [
+        "LeadHunter Dashboard Summary",
+        `Strict leads: ${t.leads}/${t.target}`,
+        `Potential revenue: ${money(t.revenue)}`,
+        `Selected-model total cost: ${money(t.totalCost)}`,
+        `Gross profit after selected model cost: ${money(t.profit)}`,
+        `Active cost model: ${activeModel === "subscription" ? "Subscription allocation" : "OpenRouter token estimate"}`,
+        "Meta Ads Batch 50: Complete",
+        "Roofing Batch 20: Partial, 14/20 strict leads"
+      ].join("\\n");
+      navigator.clipboard?.writeText(summary);
+      $("copySummary").textContent = "Copied";
+      window.setTimeout(() => $("copySummary").textContent = "Copy Summary", 1200);
+    }
+
+    function renderAll() {
+      renderKpis();
+      renderRunCards();
+      renderCompletion();
+      renderCosts();
+      renderRevenue();
+      renderEvidence();
+    }
+
+    $("modelSub").addEventListener("click", () => {
+      activeModel = "subscription";
+      $("modelSub").classList.add("active");
+      $("modelOpen").classList.remove("active");
+      renderAll();
+    });
+
+    $("modelOpen").addEventListener("click", () => {
+      activeModel = "openrouter";
+      $("modelOpen").classList.add("active");
+      $("modelSub").classList.remove("active");
+      renderAll();
+    });
+
+    $("runFocus").addEventListener("change", (event) => {
+      runFocus = event.target.value;
+      renderRunCards();
+    });
+
+    $("evidenceRun").addEventListener("change", renderEvidence);
+    $("evidenceSearch").addEventListener("input", renderEvidence);
+    $("copySummary").addEventListener("click", copySummary);
+
+    renderTierInputs();
+    renderAll();
+  </script>
+</body>
+</html>
