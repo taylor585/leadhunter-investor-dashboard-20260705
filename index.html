@@ -600,14 +600,14 @@
           <p class="small">64 strict leads from 70 requested across both runs.</p>
         </article>
         <article class="card">
-          <span class="eyebrow" id="selectedCplLabel">Subscription AI CPL</span>
+          <span class="eyebrow" id="selectedCplLabel">Effective subscription CPL</span>
           <strong class="value" id="selectedCplKpi">$0.03</strong>
-          <p class="small" id="selectedCplFoot">Selected AI billing cost divided by strict leads.</p>
+          <p class="small" id="selectedCplFoot">$2 allocation divided by 64 accepted leads.</p>
         </article>
         <article class="card">
-          <span class="eyebrow" id="modelLabel">Subscription AI cost</span>
+          <span class="eyebrow" id="modelLabel">Subscription allocation</span>
           <strong class="value" id="modelCostKpi">$2</strong>
-          <p class="small" id="modelFoot">Subscription allocation only.</p>
+          <p class="small" id="modelFoot">$1 allocated to each run; this is not usage billing.</p>
         </article>
       </section>
 
@@ -643,9 +643,9 @@
             <thead>
               <tr>
                 <th>Run</th>
-                <th class="num">Subscription AI</th>
-                <th class="num">Subscription AI CPL</th>
-                <th class="num">OpenRouter AI</th>
+                <th class="num">Subscription Allocation</th>
+                <th class="num">Effective Subscription CPL</th>
+                <th class="num">OpenRouter AI Cost</th>
                 <th class="num">OpenRouter AI CPL</th>
               </tr>
             </thead>
@@ -658,7 +658,8 @@
             <h2>Cost Explanation</h2>
           </div>
           <div class="note-list">
-            <div class="note">Subscription AI cost is a fixed allocation. In the current model, each run receives $1.00 from a $100/month subscription spread across 100 expected LeadHunter runs.</div>
+            <div class="note">Subscription allocation is a fixed estimate, not measured per-lead billing. In the current model, each run receives $1.00 from a $100/month subscription spread across 100 expected LeadHunter runs.</div>
+            <div class="note">Effective subscription CPL is calculated after that: allocation divided by actual accepted leads. Roofing shows $1.00 / 14 accepted leads = $0.07 per lead.</div>
             <div class="note orange">OpenRouter AI cost is usage-based. Meta Ads is $14.46 total and Roofing is $4.12 total using the current GPT-5.5 assumption of $5/M input tokens and $30/M output tokens.</div>
             <div class="note">Elapsed time is shown only as a speed/efficiency signal, not as a cost line.</div>
           </div>
@@ -827,13 +828,15 @@
       $("sideLeadCount").textContent = t.leads;
       $("strictLeadKpi").textContent = t.leads;
       $("completionKpi").textContent = Math.round((t.leads / t.target) * 100) + "%";
-      $("selectedCplLabel").textContent = activeModel === "subscription" ? "Subscription AI CPL" : "OpenRouter AI CPL";
+      $("selectedCplLabel").textContent = activeModel === "subscription" ? "Effective subscription CPL" : "OpenRouter AI CPL";
       $("selectedCplKpi").textContent = money(t.totalCost / t.leads);
-      $("selectedCplFoot").textContent = "Selected AI billing cost divided by strict leads.";
-      $("modelLabel").textContent = activeModel === "subscription" ? "Subscription AI cost" : "OpenRouter AI cost";
+      $("selectedCplFoot").textContent = activeModel === "subscription"
+        ? `${money(t.modelCost)} allocation divided by ${t.leads} accepted leads.`
+        : "Usage-based AI billing divided by accepted leads.";
+      $("modelLabel").textContent = activeModel === "subscription" ? "Subscription allocation" : "OpenRouter AI cost";
       $("modelCostKpi").textContent = money(t.totalCost);
       $("modelFoot").textContent = activeModel === "subscription"
-        ? "Subscription allocation only."
+        ? "$1 allocated to each run; this is not usage billing."
         : "Estimated token spend only.";
     }
 
@@ -842,7 +845,12 @@
         const pct = Math.round((run.leads / run.target) * 100);
         const partial = run.status !== "Complete";
         const modelCost = activeModel === "subscription" ? run.subscriptionCost : run.tokenCost;
-        const modelCpl = activeModel === "subscription" ? run.subscriptionCpl : run.tokenCpl;
+        const modelCpl = modelCost / run.leads;
+        const costLabel = activeModel === "subscription" ? "Allocation" : "AI cost";
+        const cplLabel = activeModel === "subscription" ? "Effective CPL" : "AI CPL";
+        const costFoot = activeModel === "subscription"
+          ? `Subscription allocation: ${money(modelCost)} / ${run.leads} accepted leads = ${money(modelCpl)} effective CPL.`
+          : `Selected AI billing cost: ${money(modelCost)}.`;
         const runRevenue = allTiers.reduce((sum, tier) => sum + (run.tiers[tier] || 0) * tierPrices[tier], 0);
         return `
           <article class="run-card ${partial ? "partial" : ""}">
@@ -858,11 +866,11 @@
               <p class="small">${run.leads}/${run.target} strict leads, ${pct}% complete</p>
             </div>
             <div class="mini-grid">
-              <div class="mini"><span class="eyebrow">AI cost</span><strong>${money(modelCost)}</strong></div>
-              <div class="mini"><span class="eyebrow">AI CPL</span><strong>${money(modelCpl)}</strong></div>
+              <div class="mini"><span class="eyebrow">${costLabel}</span><strong>${money(modelCost)}</strong></div>
+              <div class="mini"><span class="eyebrow">${cplLabel}</span><strong>${money(modelCpl)}</strong></div>
               <div class="mini"><span class="eyebrow">Revenue</span><strong>${money(runRevenue)}</strong></div>
             </div>
-            <p class="small">${run.elapsedHours}h elapsed, ${run.avgMin} min average per strict lead. Selected AI billing cost: ${money(modelCost)}.</p>
+            <p class="small">${run.elapsedHours}h elapsed, ${run.avgMin} min average per strict lead. ${costFoot}</p>
           </article>
         `;
       }).join("");
