@@ -577,7 +577,7 @@
       <section class="hero" id="overview">
         <div>
           <h1>LeadHunter Digital Dashboard</h1>
-          <p>Run-level intelligence for Meta Ads and Roofing batches, with AI billing model cost, editable heat-score pricing, evidence previews, and investor-facing completion status.</p>
+          <p>Run-level intelligence for Meta Ads, Roofing, and Water Damage batches, with AI billing model cost, editable heat-score pricing, evidence previews, and investor-facing completion status.</p>
         </div>
         <div class="hero-actions">
           <div class="switch" aria-label="Cost model">
@@ -592,12 +592,12 @@
         <article class="card">
           <span class="eyebrow">Strict leads</span>
           <strong class="value" id="strictLeadKpi">64</strong>
-          <p class="small">50 completed Meta Ads leads plus 14 Roofing leads.</p>
+          <p class="small">Meta Ads, Roofing, and Water Damage strict leads across three runs.</p>
         </article>
         <article class="card">
           <span class="eyebrow">Completion</span>
           <strong class="value" id="completionKpi">91%</strong>
-          <p class="small">64 strict leads from 70 requested across both runs.</p>
+          <p class="small">Completion across all current LeadHunter batch targets.</p>
         </article>
         <article class="card">
           <span class="eyebrow" id="selectedCplLabel">Effective subscription CPL</span>
@@ -620,6 +620,7 @@
                 <option value="all">All runs</option>
                 <option value="meta">Meta Ads Batch 50</option>
                 <option value="roofing">Roofing Batch 20</option>
+                <option value="water-damage">Water Damage Batch 50</option>
               </select>
             </div>
           </div>
@@ -660,7 +661,7 @@
           <div class="note-list">
             <div class="note">Subscription allocation is a fixed estimate, not measured per-lead billing. In the current model, each run receives $1.00 from a $100/month subscription spread across 100 expected LeadHunter runs.</div>
             <div class="note">Effective subscription CPL is calculated after that: allocation divided by actual accepted leads. Roofing shows $1.00 / 14 accepted leads = $0.07 per lead.</div>
-            <div class="note orange">OpenRouter AI cost is usage-based. Meta Ads is $14.46 total and Roofing is $4.12 total using the current GPT-5.5 assumption of $5/M input tokens and $30/M output tokens.</div>
+            <div class="note orange">OpenRouter AI cost is usage-based. Each run shows its current estimated total and per-lead amount using the current GPT-5.5 assumption of $5/M input tokens and $30/M output tokens.</div>
             <div class="note">Elapsed time is shown only as a speed/efficiency signal, not as a cost line.</div>
           </div>
         </article>
@@ -704,6 +705,7 @@
               <option value="all">All runs</option>
               <option value="meta">Meta Ads</option>
               <option value="roofing">Roofing</option>
+              <option value="water-damage">Water Damage</option>
             </select>
             <input id="evidenceSearch" type="search" placeholder="Search lead text" />
           </div>
@@ -732,6 +734,7 @@
           <div class="note-list">
             <div class="note">Meta Ads Batch 50 is complete and can be shown as an investor-ready run.</div>
             <div class="note orange">Roofing Batch 20 is commercially useful but still partial at 14/20. Do not label it complete until the loop finds the missing 6 strict leads.</div>
+            <div class="note orange">Water Damage Batch 50 is an active discovery run. Costs and CPL update at each reconciled checkpoint; it is not investor final until 50/50.</div>
             <div class="note">Cost views stay separated between subscription allocation and OpenRouter usage-based token estimates.</div>
           </div>
         </article>
@@ -741,6 +744,7 @@
           </div>
           <div class="note-list">
             <div class="note orange">Finish the Roofing loop to 20 strict leads, then refresh pricing and revenue projections.</div>
+            <div class="note orange">Continue Water Damage discovery to 50 strict, evidence-backed leads and reconcile the dashboard against the HUB.</div>
             <div class="note">Export actual OpenRouter logs on future runs so token cost stops being an estimate.</div>
             <div class="note">Keep adding only useful self-improving notes back into the LeadHunter skill and HUB.</div>
           </div>
@@ -792,6 +796,24 @@
           ["ROOF-012", "Selling house and needs licensed roofer to inspect and replace roof flashing ASAP.", 94, "90-95"],
           ["ROOF-009", "Roof leak and needs a reliable roofing company for an estimate.", 93, "90-95"]
         ]
+      },
+      {
+        id: "water-damage",
+        name: "Water Damage Batch 50",
+        industry: "Water damage restoration and mold remediation",
+        status: "Partial",
+        target: 50,
+        leads: 1,
+        elapsedHours: 0.09,
+        avgMin: 5.19,
+        tokenCost: 0.21,
+        tokenCpl: 0.21,
+        subscriptionCost: 1,
+        subscriptionCpl: 1,
+        tiers: { "85-90": 1 },
+        evidence: [
+          ["WDR-001", "Ohio homeowner needs a reliable company to inspect interior water damage, find the leak source, and estimate repairs.", 87, "85-90"]
+        ]
       }
     ];
 
@@ -827,9 +849,9 @@
       const t = totals();
       $("sideLeadCount").textContent = t.leads;
       $("strictLeadKpi").textContent = t.leads;
-      $("completionKpi").textContent = Math.round((t.leads / t.target) * 100) + "%";
+      $("completionKpi").textContent = (t.target ? Math.round((t.leads / t.target) * 100) : 0) + "%";
       $("selectedCplLabel").textContent = activeModel === "subscription" ? "Effective subscription CPL" : "OpenRouter AI CPL";
-      $("selectedCplKpi").textContent = money(t.totalCost / t.leads);
+      $("selectedCplKpi").textContent = money(t.leads ? t.totalCost / t.leads : 0);
       $("selectedCplFoot").textContent = activeModel === "subscription"
         ? `${money(t.modelCost)} allocation divided by ${t.leads} accepted leads.`
         : "Usage-based AI billing divided by accepted leads.";
@@ -845,7 +867,7 @@
         const pct = Math.round((run.leads / run.target) * 100);
         const partial = run.status !== "Complete";
         const modelCost = activeModel === "subscription" ? run.subscriptionCost : run.tokenCost;
-        const modelCpl = modelCost / run.leads;
+        const modelCpl = run.leads ? modelCost / run.leads : 0;
         const costLabel = activeModel === "subscription" ? "Allocation" : "AI cost";
         const cplLabel = activeModel === "subscription" ? "Effective CPL" : "AI CPL";
         const costFoot = activeModel === "subscription"
@@ -895,9 +917,9 @@
         <tr>
           <td><strong>${run.name}</strong><br><span class="${run.status === "Complete" ? "status-complete" : "status-partial"}">${run.status}</span></td>
           <td class="num">${money(run.subscriptionCost)}</td>
-          <td class="num">${money(run.subscriptionCost / run.leads)}</td>
+          <td class="num">${money(run.leads ? run.subscriptionCost / run.leads : 0)}</td>
           <td class="num">${money(run.tokenCost)}</td>
-          <td class="num">${money(run.tokenCost / run.leads)}</td>
+          <td class="num">${money(run.leads ? run.tokenCost / run.leads : 0)}</td>
         </tr>
       `).join("");
     }
@@ -923,7 +945,7 @@
       const t = totals();
       $("revenueKpi").textContent = money(t.revenue);
       $("profitKpi").textContent = money(t.profit);
-      $("avgChargeKpi").textContent = money(t.revenue / t.leads);
+      $("avgChargeKpi").textContent = money(t.leads ? t.revenue / t.leads : 0);
       const max = Math.max(...allTiers.map(tier => tierCount(tier)));
       $("tierChart").innerHTML = allTiers.map(tier => {
         const count = tierCount(tier);
@@ -965,7 +987,8 @@
         `Gross profit after selected AI billing: ${money(t.profit)}`,
         `Active cost model: ${activeModel === "subscription" ? "Subscription allocation" : "OpenRouter token estimate"}`,
         "Meta Ads Batch 50: Complete",
-        "Roofing Batch 20: Partial, 14/20 strict leads"
+        "Roofing Batch 20: Partial, 14/20 strict leads",
+        "Water Damage Batch 50: Partial, 1/50 strict leads"
       ].join("\\n");
       navigator.clipboard?.writeText(summary);
       $("copySummary").textContent = "Copied";
