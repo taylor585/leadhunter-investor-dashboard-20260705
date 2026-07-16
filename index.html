@@ -466,6 +466,14 @@
       border-radius: 8px;
     }
 
+    .cost-wrap {
+      overflow-x: auto;
+    }
+
+    .cost-wrap table {
+      min-width: 860px;
+    }
+
     .evidence-wrap table {
       min-width: 920px;
     }
@@ -592,7 +600,7 @@
         <article class="card">
           <span class="eyebrow">Strict leads</span>
           <strong class="value" id="strictLeadKpi">64</strong>
-          <p class="small">Meta Ads, Roofing, and Water Damage strict leads across three runs.</p>
+          <p class="small">Meta Ads, Roofing, and Water Damage strict leads across four runs.</p>
         </article>
         <article class="card">
           <span class="eyebrow">Completion</span>
@@ -621,6 +629,7 @@
                 <option value="meta">Meta Ads Batch 50</option>
                 <option value="roofing">Roofing Batch 20</option>
                 <option value="water-damage">Water Damage Batch 50</option>
+                <option value="water-recovery">Water Damage Recovery Pilot 5</option>
               </select>
             </div>
           </div>
@@ -640,6 +649,7 @@
           <div class="section-head">
             <h2>Cost Model Split</h2>
           </div>
+          <div class="cost-wrap">
           <table>
             <thead>
               <tr>
@@ -648,10 +658,13 @@
                 <th class="num">Effective Subscription CPL</th>
                 <th class="num">OpenRouter AI Cost</th>
                 <th class="num">OpenRouter AI CPL</th>
+                <th class="num">All-In Test Cost</th>
+                <th class="num">All-In CPL</th>
               </tr>
             </thead>
             <tbody id="costRows"></tbody>
           </table>
+          </div>
         </article>
 
         <article class="card">
@@ -663,6 +676,7 @@
             <div class="note">Effective subscription CPL is calculated after that: allocation divided by actual accepted leads. Roofing shows $1.00 / 14 accepted leads = $0.07 per lead.</div>
             <div class="note orange">OpenRouter AI cost is usage-based. Each run shows its current estimated total and per-lead amount using the current GPT-5.5 assumption of $5/M input tokens and $30/M output tokens.</div>
             <div class="note">Elapsed time is shown only as a speed/efficiency signal, not as a cost line.</div>
+            <div class="note">The Water Damage Recovery Pilot is the exception: its all-in test cost includes every active recovery attempt at £35/hour plus the £1 subscription allocation, giving £15.40 total and £3.08 per strict lead.</div>
           </div>
         </article>
       </section>
@@ -706,6 +720,7 @@
               <option value="meta">Meta Ads</option>
               <option value="roofing">Roofing</option>
               <option value="water-damage">Water Damage</option>
+              <option value="water-recovery">Water Damage Recovery</option>
             </select>
             <input id="evidenceSearch" type="search" placeholder="Search lead text" />
           </div>
@@ -734,7 +749,8 @@
           <div class="note-list">
             <div class="note">Meta Ads Batch 50 is complete and can be shown as an investor-ready run.</div>
             <div class="note orange">Roofing Batch 20 is commercially useful but still partial at 14/20. Do not label it complete until the loop finds the missing 6 strict leads.</div>
-            <div class="note orange">Water Damage Batch 50 is an active discovery run. Costs and CPL update at each reconciled checkpoint; it is not investor final until 50/50.</div>
+            <div class="note orange">Water Damage Batch 50 is retained as a failed-QA run at 1/50; it must not be represented as a successful batch.</div>
+            <div class="note">Water Damage Recovery Pilot passed its controlled gate at 5/5 with 100% parent extraction, 100% recent-parent ratio, and zero comment fallbacks.</div>
             <div class="note">Cost views stay separated between subscription allocation and OpenRouter usage-based token estimates.</div>
           </div>
         </article>
@@ -744,7 +760,7 @@
           </div>
           <div class="note-list">
             <div class="note orange">Finish the Roofing loop to 20 strict leads, then refresh pricing and revenue projections.</div>
-            <div class="note orange">Continue Water Damage discovery to 50 strict, evidence-backed leads and reconcile the dashboard against the HUB.</div>
+            <div class="note orange">Do not scale Water Damage to 50 until the corrected runner is restarted and a fresh live pilot repeats the recovery gate.</div>
             <div class="note">Export actual OpenRouter logs on future runs so token cost stops being an estimate.</div>
             <div class="note">Keep adding only useful self-improving notes back into the LeadHunter skill and HUB.</div>
           </div>
@@ -801,7 +817,7 @@
         id: "water-damage",
         name: "Water Damage Batch 50",
         industry: "Water damage restoration and mold remediation",
-        status: "Partial",
+        status: "Failed QA",
         target: 50,
         leads: 1,
         elapsedHours: 0.65,
@@ -814,6 +830,31 @@
         evidence: [
           ["WDR-001", "Ohio homeowner needs a reliable company to inspect interior water damage, find the leak source, and estimate repairs.", 87, "85-90"]
         ]
+      },
+      {
+        id: "water-recovery",
+        name: "Water Damage Recovery Pilot 5",
+        industry: "Water damage restoration and mold remediation",
+        status: "Pilot Passed",
+        target: 5,
+        leads: 5,
+        elapsedHours: 0.41,
+        avgMin: 4.94,
+        tokenCost: 0,
+        tokenCpl: 0,
+        subscriptionCost: 1,
+        subscriptionCpl: 0.20,
+        operatingCost: 14.40,
+        allInCost: 15.40,
+        allInCpl: 3.08,
+        tiers: { "85-90": 2, "90-95": 3 },
+        evidence: [
+          ["WDR-PILOT-001", "Ohio homeowner wants inspection, leak-source diagnosis, and a repair estimate for interior wall water damage.", 90, "90-95"],
+          ["WDR-PILOT-002", "Authorised Fort Wayne agent needs water mitigation and insured kitchen and flooring rebuild support.", 85, "85-90"],
+          ["WDR-PILOT-003", "Grove City homeowner requests a water-restoration inspection for a worsening bathroom moisture problem.", 85, "85-90"],
+          ["WDR-PILOT-004", "Drexel Hill homeowner needs an insured post-flood basement repair and rebuild.", 90, "90-95"],
+          ["WDR-PILOT-005", "Raleigh-area condo needs structural floor and subfloor repairs caused by water damage.", 90, "90-95"]
+        ]
       }
     ];
 
@@ -823,6 +864,7 @@
 
     const $ = (id) => document.getElementById(id);
     const money = (n) => "$" + Number(n).toLocaleString("en-US", { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
+    const sterling = (n) => n == null ? "—" : "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const allTiers = ["80-85", "85-90", "90-95", "95-100"];
 
     function filteredRuns() {
@@ -865,7 +907,7 @@
     function renderRunCards() {
       $("runCards").innerHTML = filteredRuns().map(run => {
         const pct = Math.round((run.leads / run.target) * 100);
-        const partial = run.status !== "Complete";
+        const partial = run.leads < run.target || run.status === "Failed QA";
         const modelCost = activeModel === "subscription" ? run.subscriptionCost : run.tokenCost;
         const modelCpl = run.leads ? modelCost / run.leads : 0;
         const costLabel = activeModel === "subscription" ? "Allocation" : "AI cost";
@@ -892,7 +934,7 @@
               <div class="mini"><span class="eyebrow">${cplLabel}</span><strong>${money(modelCpl)}</strong></div>
               <div class="mini"><span class="eyebrow">Revenue</span><strong>${money(runRevenue)}</strong></div>
             </div>
-            <p class="small">${run.elapsedHours}h elapsed, ${run.avgMin} min average per strict lead. ${costFoot}</p>
+            <p class="small">${run.elapsedHours}h active runtime, ${run.avgMin} min average per strict lead. ${costFoot}${run.allInCost != null ? ` All-in recovery cost: ${sterling(run.allInCost)}, or ${sterling(run.allInCpl)} per strict lead.` : ""}</p>
           </article>
         `;
       }).join("");
@@ -905,7 +947,7 @@
         return `
           <div class="chart-row">
             <strong>${run.name}</strong>
-            <div class="bar-track"><div class="bar-fill ${run.status === "Partial" ? "orange" : "green"}" style="width:${(run.leads / max) * 100}%"></div></div>
+            <div class="bar-track"><div class="bar-fill ${run.leads >= run.target && run.status !== "Failed QA" ? "green" : "orange"}" style="width:${(run.leads / max) * 100}%"></div></div>
             <span>${pct}%</span>
           </div>
         `;
@@ -915,11 +957,13 @@
     function renderCosts() {
       $("costRows").innerHTML = runs.map(run => `
         <tr>
-          <td><strong>${run.name}</strong><br><span class="${run.status === "Complete" ? "status-complete" : "status-partial"}">${run.status}</span></td>
+          <td><strong>${run.name}</strong><br><span class="${run.leads >= run.target && run.status !== "Failed QA" ? "status-complete" : "status-partial"}">${run.status}</span></td>
           <td class="num">${money(run.subscriptionCost)}</td>
           <td class="num">${money(run.leads ? run.subscriptionCost / run.leads : 0)}</td>
           <td class="num">${money(run.tokenCost)}</td>
           <td class="num">${money(run.leads ? run.tokenCost / run.leads : 0)}</td>
+          <td class="num">${sterling(run.allInCost)}</td>
+          <td class="num">${sterling(run.allInCpl)}</td>
         </tr>
       `).join("");
     }
@@ -988,7 +1032,8 @@
         `Active cost model: ${activeModel === "subscription" ? "Subscription allocation" : "OpenRouter token estimate"}`,
         "Meta Ads Batch 50: Complete",
         "Roofing Batch 20: Partial, 14/20 strict leads",
-        "Water Damage Batch 50: Partial, 1/50 strict leads"
+        "Water Damage Batch 50: Failed QA, 1/50 strict leads",
+        "Water Damage Recovery Pilot 5: Passed, 5/5 strict leads, £15.40 all-in, £3.08 CPL"
       ].join("\\n");
       navigator.clipboard?.writeText(summary);
       $("copySummary").textContent = "Copied";
